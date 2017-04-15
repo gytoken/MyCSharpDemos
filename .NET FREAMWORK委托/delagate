@@ -1,0 +1,84 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace ConsoleApplication45
+{
+    public class Heater
+    {
+        private int temperature;
+        public string type = "西门子C01";
+        public string zeron = "中国西安";
+        //声明委托
+        public delegate void BoildEventHandler(Object sender, BoildEventArgs e);
+        //声明事件
+        public event BoildEventHandler Boild;
+
+        public class BoildEventArgs:EventArgs
+        {
+            public readonly int temperature;
+            public BoildEventArgs(int temperature)
+            {
+                this.temperature = temperature;
+            }
+        }
+
+        protected virtual void OnBoild(BoildEventArgs e)
+        {
+            if (Boild != null)
+                Boild(this,e);
+        }
+
+        public void BoildWater()
+        {
+            for (int i = 0; i <= 100; i++)
+            {
+                temperature = i;
+                if (temperature > 95)
+                {
+                    BoildEventArgs e = new BoildEventArgs(temperature);
+                    OnBoild(e);
+                }
+            }       
+        }
+    }
+
+    public class Alarm
+    {
+        public void MakeAlarm(Object sender, Heater.BoildEventArgs e)
+        {
+            Heater heater = (Heater)sender;
+            Console.WriteLine("Alarm:{0}---{1}",heater.zeron,heater.type);
+            Console.WriteLine("Alarm:嘀嘀嘀，水已经{0}度了。",e.temperature);
+            Console.WriteLine();
+        }
+    }
+
+    public class Display
+    {
+        public static void ShowMsg(Object sender, Heater.BoildEventArgs e)
+        {
+            Heater heater = (Heater)sender;
+            Console.WriteLine("Alarm:{0}---{1}", heater.zeron, heater.type);
+            Console.WriteLine("Display:水已经烧开了，水温{0}度",e.temperature);
+            Console.WriteLine("");
+        }
+    }
+
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Heater heater = new Heater();
+            Alarm alarm = new Alarm();
+
+            heater.Boild += alarm.MakeAlarm;
+            heater.Boild += Display.ShowMsg;
+
+            heater.BoildWater();
+            Console.Read();
+        }
+    }
+}
