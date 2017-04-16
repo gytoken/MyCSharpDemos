@@ -1,0 +1,49 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace EntityFrameworkTest
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            using (var dbEntity=new MyEntities())
+            {
+                Console.WriteLine("-------添加--------");
+                int rows = -1;
+                var user = new UserInfo()
+                {
+                    Name = "科比",
+                    Sex = "男",
+                    Birthday = DateTime.Parse("1978-08-22")
+                };
+                dbEntity.UserInfo.AddObject(user);
+                rows = dbEntity.SaveChanges();
+                if (rows > 0)
+                    Console.WriteLine("{0}的数据添加成功",user.Name);
+                Console.ReadKey();
+
+                Console.WriteLine("-------查询--------");
+                var userTemp = dbEntity.UserInfo.FirstOrDefault<UserInfo>(a=>a.Name=="科比");
+                Console.WriteLine(string.Format(string.Format("{0}是个{1}人，他的生日是{2}",userTemp.Name,userTemp.Sex,userTemp.Birthday.ToString())));
+                Console.ReadKey();
+
+                Console.WriteLine("-------修改--------");
+                userTemp.Birthday=DateTime.Parse("1987-08-23");
+                rows=dbEntity.SaveChanges();
+                if(rows>0)
+                    Console.WriteLine(string.Format("{0}的生日修改成功",userTemp.Name));
+                Console.ReadKey();
+
+                Console.WriteLine("-------删除--------");
+                dbEntity.UserInfo.DeleteObject(userTemp);
+                rows=dbEntity.SaveChanges();
+                if(rows>0)
+                    Console.WriteLine(string.Format("{0}的数据已删除",userTemp.Name));
+                Console.ReadKey();
+            }
+        }
+    }
+}
